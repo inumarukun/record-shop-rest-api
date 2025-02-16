@@ -1,0 +1,26 @@
+package main
+
+import (
+	"record-shop-rest-api/controller"
+	"record-shop-rest-api/db"
+	"record-shop-rest-api/repository"
+	"record-shop-rest-api/router"
+	"record-shop-rest-api/usecase"
+)
+
+// $env:GO_ENV="dev"; go run main.go
+// debug: 左サイドバー Run and Debug
+// Notice: docker desctop起動、record-shop-rest-api(postgres)を起動させておくこと
+func main() {
+	db := db.NewDB()
+	userRepository := repository.NewUserRepository(db)
+	recordRepository := repository.NewRecordRepository(db)
+	userUsecase := usecase.NewUserUsecase(userRepository)
+	recordUsecase := usecase.NewRecordUsecase(recordRepository)
+	userController := controller.NewUserController(userUsecase)
+	recordController := controller.NewRecordController(recordUsecase)
+	e := router.NewRouter(userController, recordController)
+	// server起動
+	// error発生時、log出力して終了
+	e.Logger.Fatal(e.Start(":8080"))
+}
