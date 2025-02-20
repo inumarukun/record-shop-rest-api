@@ -5,7 +5,6 @@ import (
 	"os"
 	"record-shop-rest-api/controller"
 
-	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -28,9 +27,11 @@ func NewRouter(uc controller.IUserControler, rc controller.IRecordController) *e
 		AllowCredentials: true,
 	}))
 
-	// CSRF moddleware
+	// CSRF middleware
 	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		CookiePath:     "/",
+		// CSRFトークンを含むCookieが '/'パス以下全てのリクエストに対して送信されることを指定
+		CookiePath: "/",
+		// CSRFトークンを含むCookieを指定したドメインに対してのみ送信
 		CookieDomain:   os.Getenv("API_DOMAIN"),
 		CookieHTTPOnly: true,
 		CookieSameSite: http.SameSiteNoneMode,
@@ -45,14 +46,18 @@ func NewRouter(uc controller.IUserControler, rc controller.IRecordController) *e
 
 	r := e.Group("/records")
 	// /records以下の全てのルートに対して、JWT認証を適用
-	// リクエストに cookie: token が含まれている場合、JWTトークンが検証され、認証情報がリクエストに追加される
-	r.Use(echojwt.WithConfig(echojwt.Config{
-		// Jwtを生成した時と同じ秘密鍵
-		SigningKey: []byte(os.Getenv("SECRET")),
-		// クライアントから送られてくるJWTがどこに格納されているか
-		// 今回はCookieにtokenという形で実装している
-		TokenLookup: "cookie:token",
-	}))
+	// リクエストにcookie: token が含まれている場合、
+	// JWTトークンが検証され、認証情報がリクエストに追加される
+	// つまりloginしていないと/records以下にはアクセス出来ない
+	// これは先頭にlogin画面を配備し、loginしていないと以降の処理を許可しない場合に有効
+	// r.Use(echojwt.WithConfig(echojwt.Config{
+	// 	// Jwtを生成した時と同じ秘密鍵
+	// 	SigningKey: []byte(os.Getenv("SECRET")),
+	// 	// クライアントから送られてくるJWTがどこに格納されているか
+	// 	// 今回はCookieにtokenという形で実装している
+	// 	TokenLookup: "cookie:token",
+	// }))
+
 	// 実質これでGET: /records
 	r.GET("", rc.ViewList)
 	// e.GET("/:id", rc.GetRecordByIdGetRecordById)

@@ -29,6 +29,7 @@ func (uc *userController) CsrfToken(c echo.Context) error {
 	// csrf Tokenはecho.Contextから取得出来る、string型でアサーション
 	token := c.Get("csrf").(string)
 	// JSONでクライアントにcsrf tokenをレスポンスで返す
+	// authflow: 1
 	return c.JSON(http.StatusOK, echo.Map{"csrf_token": token})
 }
 
@@ -59,17 +60,19 @@ func (uc *userController) LogIn(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	// JWTをサーバーサイドでCookieに設定
+	// logoutでもNewしているが名前が同じならブラウザは同じものを見る
 	cookie := new(http.Cookie)
 	cookie.Name = "token"
 	cookie.Value = tokenString
 	cookie.Expires = time.Now().Add(24 * time.Hour)
-	cookie.Path = "/"
+	cookie.Path = "/" // この生成したCookieは"/"パス以下、つまり全てのリクエストで送信"
 	cookie.Domain = os.Getenv("API_DOMAIN")
 	cookie.Secure = true                    // trueにしておく必要があるが、いったんPOSTMANで確認したいのでコメントアウト
 	cookie.HttpOnly = true                  // クライアントのJSからTokenの値が読み取れないように
 	cookie.SameSite = http.SameSiteNoneMode // frontendとbackendのdomainが違うクロスドメイン間のCookie送受信になるので、クロスサイト・スクリプティング攻撃やセッションハイジャックなどのリスクを軽減
 	c.SetCookie(cookie)                     // 上で設定したCookieをHTTPレスポンスに含める
-	return c.NoContent(http.StatusOK)
+	// return c.NoContent(http.StatusOK)
+	return c.JSON(http.StatusCreated, user)
 }
 
 func (uc *userController) LogOut(c echo.Context) error {

@@ -51,11 +51,11 @@ func (rc *recordController) ViewList(c echo.Context) error {
 	// 	return c.JSON(http.StatusUnauthorized, "Unauthorized")
 	// }
 
-	userResponse, err := rc.ru.GetRecordList()
+	recordResponse, err := rc.ru.GetRecordList()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusCreated, userResponse)
+	return c.JSON(http.StatusCreated, recordResponse)
 }
 
 func (rc *recordController) GetRecordByTitle(c echo.Context) error {
