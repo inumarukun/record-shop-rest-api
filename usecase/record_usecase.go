@@ -31,7 +31,9 @@ func (ru *recordUsecase) CreateRecord(record model.Record) (model.RecordResponse
 		Artist:      record.Artist,
 		Title:       record.Title,
 		Genre:       record.Genre,
-		ReleaseYear: record.ReleaseYear}
+		Style:       record.Style,
+		ReleaseYear: record.ReleaseYear,
+	}
 	if err := ru.rr.CreateRecord(&newRecord); err != nil {
 		return model.RecordResponse{}, err
 	}
@@ -40,6 +42,7 @@ func (ru *recordUsecase) CreateRecord(record model.Record) (model.RecordResponse
 		Artist:      newRecord.Artist,
 		Title:       newRecord.Title,
 		Genre:       newRecord.Genre,
+		Style:       newRecord.Style,
 		ReleaseYear: newRecord.ReleaseYear,
 	}
 	return resRecord, nil
@@ -65,6 +68,7 @@ func (ru *recordUsecase) GetRecordList() ([]model.RecordResponse, error) {
 				Title:       record.Title,
 				Artist:      record.Artist,
 				Genre:       record.Genre,
+				Style:       record.Style,
 				ReleaseYear: record.ReleaseYear,
 			})
 		}
@@ -97,6 +101,7 @@ func (*recordUsecase) mapSlice(recordList []model.Record) ([]model.RecordRespons
 			Title:       record.Title,
 			Artist:      record.Artist,
 			Genre:       record.Genre,
+			Style:       record.Style,
 			ReleaseYear: record.ReleaseYear,
 		}
 	})
@@ -114,6 +119,7 @@ func (ru *recordUsecase) UpdateRecord(record model.Record) (model.RecordResponse
 		Title:       record.Title,
 		Artist:      record.Artist,
 		Genre:       record.Genre,
+		Style:       record.Style,
 		ReleaseYear: record.ReleaseYear,
 	}
 	return resTask, nil
