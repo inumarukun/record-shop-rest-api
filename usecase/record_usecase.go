@@ -39,6 +39,7 @@ func (ru *recordUsecase) CreateRecord(record model.Record) (model.RecordResponse
 	}
 	// CreateUserが成功すれば、newUser、つまり引数が新しいユーザになっている、それを詰めて返す
 	resRecord := model.RecordResponse{
+		ID:          newRecord.ID,
 		Artist:      newRecord.Artist,
 		Title:       newRecord.Title,
 		Genre:       newRecord.Genre,

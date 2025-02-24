@@ -5,6 +5,7 @@ import (
 	"os"
 	"record-shop-rest-api/controller"
 
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -45,24 +46,22 @@ func NewRouter(uc controller.IUserControler, rc controller.IRecordController) *e
 	e.GET("/csrf", uc.CsrfToken)
 
 	r := e.Group("/records")
+	// 実質これでGET: /records
+	r.GET("", rc.ViewList)
+
 	// /records以下の全てのルートに対して、JWT認証を適用
 	// リクエストにcookie: token が含まれている場合、
 	// JWTトークンが検証され、認証情報がリクエストに追加される
 	// つまりloginしていないと/records以下にはアクセス出来ない
 	// これは先頭にlogin画面を配備し、loginしていないと以降の処理を許可しない場合に有効
-	// r.Use(echojwt.WithConfig(echojwt.Config{
-	// 	// Jwtを生成した時と同じ秘密鍵
-	// 	SigningKey: []byte(os.Getenv("SECRET")),
-	// 	// クライアントから送られてくるJWTがどこに格納されているか
-	// 	// 今回はCookieにtokenという形で実装している
-	// 	TokenLookup: "cookie:token",
-	// }))
+	r.Use(echojwt.WithConfig(echojwt.Config{
+		// Jwtを生成した時と同じ秘密鍵
+		SigningKey: []byte(os.Getenv("SECRET")),
+		// クライアントから送られてくるJWTがどこに格納されているか
+		// 今回はCookieにtokenという形で実装している
+		TokenLookup: "cookie:token",
+	}))
 
-	// 実質これでGET: /records
-	r.GET("", rc.ViewList)
-	// e.GET("/:id", rc.GetRecordByIdGetRecordById)
-	r.GET("/title/:title", rc.GetRecordByTitle)
-	r.GET("/artist/:artist", rc.GetRecordByArtist)
 	// 実質これでPOST: /records
 	r.POST("", rc.CreateRecord)
 	// /records/idのidいらないだろうと思ったけどupdateのwhere条件にいる)
