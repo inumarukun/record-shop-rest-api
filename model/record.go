@@ -24,3 +24,35 @@ type RecordResponse struct {
 	Style       string `json:"style"`
 	ReleaseYear int    `json:"release_year"`
 }
+
+// Recordフィールドを通じて、外部キーがどのモデルのどのフィールドに関連するかを明示
+// この構造体フィールドはGORMが自動的に利用するため、JSONタグで返さない設定にしている（json:"-"）
+// foreignKey:RecordId: DetailのRecordIdフィールドをRecordテーブルの外部キーとして使用します。
+// references:ID: RecordのIDフィールドが外部キーの参照先
+// constraint:
+//   OnUpdate:CASCADE、RecordのIDが変更された場合、それに応じてDetailも更新
+//   OnDelete:SET NULL、Recordが削除された場合、紐づくDetailのRecordIdフィールドをNULLに設定
+type Detail struct {
+	ID            uint   `json:"id" gorm:"primaryKey;autoIncrement"`
+	RecordId      uint   `json:"recordId" gorm:"not null"`
+	AlbumImageUrl string `json:"albumImageUrl" gorm:"default: ''"`
+	Record        Record `json:"-" gorm:"foreignKey:RecordId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+}
+
+type Track struct {
+	ID          uint   `json:"id" gorm:"primaryKey;autoIncrement"`
+	DetailId    uint   `json:"detailId" gorm:"not null"`
+	TrackNumber uint   `json:"trackNumber"  gorm:"not null"`
+	TrackTitle  string `json:"itrackTitled" gorm:"not null; default: ''"`
+	Detail      Record `json:"-" gorm:"foreignKey:DetailId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+}
+
+type TrackInfo struct {
+	TrackNumber uint   `json:"trackNumber"`
+	TrackTitle  string `json:"trackTitle"`
+}
+type DetailResponse struct {
+	RecordTitle   string      `json:"recordTitle"`
+	AlbumImageUrl string      `json:"albumImageUrl"`
+	Tracks        []TrackInfo `json:"tracks"`
+}

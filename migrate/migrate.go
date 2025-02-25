@@ -13,7 +13,7 @@ func main() {
 	defer db.CloseDB(dbConn)
 	// DBに反映させたいModel構造を渡す
 	// {}でフィールドの値を0値にしている
-	err := dbConn.AutoMigrate(&model.User{}, &model.Record{})
+	err := dbConn.AutoMigrate(&model.User{}, &model.Record{}, &model.Detail{}, &model.Track{})
 	if err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 	}

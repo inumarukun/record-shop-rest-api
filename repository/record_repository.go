@@ -10,6 +10,7 @@ import (
 type IRecordRepository interface {
 	CreateRecord(record *model.Record) error
 	GetRecordList() ([]model.Record, error)
+	GetDetail(title string) (model.DetailResponse, error)
 	GetRecordByTitle(title string) ([]model.Record, error)
 	GetRecordByArtist(artist string) ([]model.Record, error)
 	UpdateRecord(task *model.Record) error
@@ -42,6 +43,47 @@ func (rr *recordRepository) GetRecordList() ([]model.Record, error) {
 		return nil, err
 	}
 	return records, nil
+}
+
+func (rr *recordRepository) GetDetail(title string) (model.DetailResponse, error) {
+	var records []struct {
+		RecordTitle   string
+		AlbumImageUrl string
+		TrackNumber   uint
+		TrackTitle    string
+	}
+	result := rr.db.
+		Table("records").
+		Select(
+			"records.title AS record_title, details.album_image_url, tracks.track_number, tracks.track_title").
+		Joins("JOIN details ON details.record_id = records.id").
+		Joins("JOIN tracks ON tracks.detail_id = details.id").
+		Where("records.title = ?", title).
+		Scan(&records)
+
+	if result.Error != nil {
+		fmt.Printf("Error occurred while querying: %v\n", result.Error)
+		return model.DetailResponse{}, result.Error
+	}
+
+	// クエリが成功したが結果が空の場合
+	if result.RowsAffected == 0 {
+		fmt.Println("No records found for the given title.")
+		return model.DetailResponse{}, result.Error
+	}
+
+	response := model.DetailResponse{
+		RecordTitle:   records[0].RecordTitle,
+		AlbumImageUrl: records[0].AlbumImageUrl,
+	}
+	for _, r := range records {
+		track := model.TrackInfo{
+			TrackNumber: r.TrackNumber,
+			TrackTitle:  r.TrackTitle,
+		}
+		response.Tracks = append(response.Tracks, track)
+	}
+	return response, nil
 }
 
 func (rr *recordRepository) GetRecordByTitle(title string) ([]model.Record, error) {

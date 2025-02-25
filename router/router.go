@@ -48,6 +48,7 @@ func NewRouter(uc controller.IUserControler, rc controller.IRecordController) *e
 	r := e.Group("/records")
 	// 実質これでGET: /records
 	r.GET("", rc.ViewList)
+	r.GET("/:title", rc.GetDetail)
 
 	// /records以下の全てのルートに対して、JWT認証を適用
 	// リクエストにcookie: token が含まれている場合、

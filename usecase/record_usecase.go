@@ -9,6 +9,7 @@ import (
 type IRecordUsecase interface {
 	CreateRecord(record model.Record) (model.RecordResponse, error)
 	GetRecordList() ([]model.RecordResponse, error)
+	GetDetail(title string) (model.DetailResponse, error)
 	GetRecordByTitle(title string) ([]model.RecordResponse, error)
 	GetRecordByArtist(artist string) ([]model.RecordResponse, error)
 	UpdateRecord(task model.Record) (model.RecordResponse, error)
@@ -74,6 +75,14 @@ func (ru *recordUsecase) GetRecordList() ([]model.RecordResponse, error) {
 			})
 		}
 		return recordResponseList, nil
+	}
+}
+
+func (ru *recordUsecase) GetDetail(title string) (model.DetailResponse, error) {
+	if record, err := ru.rr.GetDetail(title); err != nil {
+		return model.DetailResponse{}, err
+	} else {
+		return record, nil
 	}
 }
 

@@ -13,6 +13,7 @@ import (
 type IRecordController interface {
 	CreateRecord(c echo.Context) error
 	ViewList(c echo.Context) error
+	GetDetail(c echo.Context) error
 	GetRecordByTitle(c echo.Context) error
 	GetRecordByArtist(c echo.Context) error
 	UpdateRecord(c echo.Context) error
@@ -55,7 +56,16 @@ func (rc *recordController) ViewList(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusCreated, recordResponse)
+	return c.JSON(http.StatusOK, recordResponse)
+}
+
+func (rc *recordController) GetDetail(c echo.Context) error {
+	title := c.Param("title")
+	recordReponse, err := rc.ru.GetDetail(title)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, recordReponse)
 }
 
 func (rc *recordController) GetRecordByTitle(c echo.Context) error {
@@ -69,7 +79,7 @@ func (rc *recordController) GetRecordByTitle(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusCreated, userResponse)
+	return c.JSON(http.StatusOK, userResponse)
 }
 
 func (rc *recordController) GetRecordByArtist(c echo.Context) error {
@@ -83,7 +93,7 @@ func (rc *recordController) GetRecordByArtist(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusCreated, userResponse)
+	return c.JSON(http.StatusOK, userResponse)
 }
 
 func (rc *recordController) UpdateRecord(c echo.Context) error {
