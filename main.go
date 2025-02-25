@@ -6,6 +6,7 @@ import (
 	"record-shop-rest-api/repository"
 	"record-shop-rest-api/router"
 	"record-shop-rest-api/usecase"
+	"record-shop-rest-api/validator"
 )
 
 // $env:GO_ENV="dev"; go run main.go
@@ -13,10 +14,12 @@ import (
 // Notice: docker desctop起動、record-shop-rest-api(postgres)を起動させておくこと
 func main() {
 	db := db.NewDB()
+	userValidator := validator.NewUserValidator()
+	recordValidator := validator.NewRecordValidator()
 	userRepository := repository.NewUserRepository(db)
 	recordRepository := repository.NewRecordRepository(db)
-	userUsecase := usecase.NewUserUsecase(userRepository)
-	recordUsecase := usecase.NewRecordUsecase(recordRepository)
+	userUsecase := usecase.NewUserUsecase(userRepository, userValidator)
+	recordUsecase := usecase.NewRecordUsecase(recordRepository, recordValidator)
 	userController := controller.NewUserController(userUsecase)
 	recordController := controller.NewRecordController(recordUsecase)
 	e := router.NewRouter(userController, recordController)
