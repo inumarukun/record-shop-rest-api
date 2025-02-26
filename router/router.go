@@ -40,6 +40,9 @@ func NewRouter(uc controller.IUserControler, rc controller.IRecordController) *e
 		// CookieMaxAge: 60,　// csrf tokenの有効期限、デフォルト24H、秒単位
 	}))
 
+	// "image"ディレクトリを"/images"パスでホスティング
+	e.Static("/images", "./image")
+
 	e.POST("/signup", uc.SignUp)
 	e.POST("/login", uc.LogIn)
 	e.POST("/logout", uc.LogOut)

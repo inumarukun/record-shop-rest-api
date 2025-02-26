@@ -30,7 +30,7 @@ func NewRecordController(ru usecase.IRecordUsecase) IRecordController {
 
 func (rc *recordController) CreateRecord(c echo.Context) error {
 	record := model.Record{}
-	// clientから送られてくるリクエストBodyをUserオブジェクトのポインタが指し示す先の値に格納する
+	// clientから送られてくるリクエストBodyをRecordオブジェクトのポインタが指し示す先の値に格納する
 	// つまり構造体にBind
 	if err := c.Bind(&record); err != nil {
 		// 変換に失敗した場合
@@ -39,8 +39,14 @@ func (rc *recordController) CreateRecord(c echo.Context) error {
 
 	recordRes, err := rc.ru.CreateRecord(record)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		if recordRes.Error != nil {
+			// ここでErrorを返しているから、フロント側でerr.response.data.messageで受けれる
+			return c.JSON(http.StatusBadRequest, recordRes.Error)
+		}
+		// map[string]string: のstringは、key, value
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
+
 	return c.JSON(http.StatusCreated, recordRes)
 }
 
@@ -106,12 +112,16 @@ func (rc *recordController) UpdateRecord(c echo.Context) error {
 	if err := c.Bind(&record); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	// Task構造体の中にuserIdとtaskIdを含んでないのはあえてか？
-	taskRes, err := rc.ru.UpdateRecord(record)
+	recordRes, err := rc.ru.UpdateRecord(record)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		if recordRes.Error != nil {
+			// ここでErrorを返しているから、フロント側でerr.response.data.messageで受けれる
+			return c.JSON(http.StatusBadRequest, recordRes.Error)
+		}
+		// map[string]string: のstringは、key, value
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
-	return c.JSON(http.StatusOK, taskRes)
+	return c.JSON(http.StatusOK, recordRes)
 }
 
 func (rc *recordController) DeleteRecord(c echo.Context) error {

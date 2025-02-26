@@ -23,6 +23,9 @@ type RecordResponse struct {
 	Genre       string `json:"genre"`
 	Style       string `json:"style"`
 	ReleaseYear int    `json:"release_year"`
+	// omitempty: フィールドがゼロ値の場合、JSONエンコード時にそのフィールドは省略
+	// jsonタグのオプションは,区切りの間に空白入れると警告(警告だが入れないほうが無難)
+	Error *ErrorResponse `json:"error,omitempty"` // エラーが無い場合はnil
 }
 
 // Recordフィールドを通じて、外部キーがどのモデルのどのフィールドに関連するかを明示

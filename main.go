@@ -11,7 +11,7 @@ import (
 
 // $env:GO_ENV="dev"; go run main.go
 // debug: 左サイドバー Run and Debug
-// Notice: docker desctop起動、record-shop-rest-api(postgres)を起動させておくこと
+// Notice: docker desktop起動、record-shop-rest-api(postgres)を起動させておくこと
 func main() {
 	db := db.NewDB()
 	userValidator := validator.NewUserValidator()
@@ -22,6 +22,7 @@ func main() {
 	recordUsecase := usecase.NewRecordUsecase(recordRepository, recordValidator)
 	userController := controller.NewUserController(userUsecase)
 	recordController := controller.NewRecordController(recordUsecase)
+
 	e := router.NewRouter(userController, recordController)
 	// server起動
 	// error発生時、log出力して終了

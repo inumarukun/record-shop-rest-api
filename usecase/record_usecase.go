@@ -30,7 +30,14 @@ func NewRecordUsecase(rr repository.IRecordRepository, rv validator.IRecordValid
 
 func (ru *recordUsecase) CreateRecord(record model.Record) (model.RecordResponse, error) {
 	if err := ru.rv.RecordValidate(record); err != nil {
-		return model.RecordResponse{}, err
+		errorMessage := common.HandleValidationError(err)
+		return model.RecordResponse{
+			Error: &model.ErrorResponse{
+				Code:    "ValidationError",
+				Message: errorMessage,
+				Details: "Record validation failed due to missing required fields.",
+			},
+		}, err
 	}
 	// これで新しいstructが出来る、idはGormが自動で入れる？
 	newRecord := model.Record{
@@ -125,7 +132,14 @@ func (*recordUsecase) mapSlice(recordList []model.Record) ([]model.RecordRespons
 
 func (ru *recordUsecase) UpdateRecord(record model.Record) (model.RecordResponse, error) {
 	if err := ru.rv.RecordValidate(record); err != nil {
-		return model.RecordResponse{}, err
+		errorMessage := common.HandleValidationError(err)
+		return model.RecordResponse{
+			Error: &model.ErrorResponse{
+				Code:    "ValidationError",
+				Message: errorMessage,
+				Details: "Record validation failed due to missing required fields.",
+			},
+		}, err
 	}
 
 	if err := ru.rr.UpdateRecord(&record); err != nil {

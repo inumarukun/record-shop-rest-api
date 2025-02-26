@@ -38,23 +38,23 @@ func (rv *recordValidator) RecordValidate(record model.Record) error {
 	return validation.ValidateStruct(&record,
 		validation.Field(
 			&record.Artist,
-			validation.Required.Error("artist is required.\n"),
+			validation.Required.Error("artist is required."),
 		),
 		validation.Field(
 			&record.Title,
-			validation.Required.Error("title is required.\n"),
+			validation.Required.Error("title is required."),
 		),
 		validation.Field(
 			&record.Genre,
-			validation.Required.Error("genre is required.\n"),
+			validation.Required.Error("genre is required."),
 		),
 		validation.Field(
 			&record.Style,
-			validation.Required.Error("style is required.\n"),
+			validation.Required.Error("style is required."),
 		),
 		validation.Field(
 			&record.ReleaseYear, // Fieldという縛りがあるので変数にできない
-			validation.Required.Error("release year is required.\n"),
+			validation.Required.Error("release year is required."),
 			validation.By(ValidateReleaseYear), // カスタムバリデーションを適用
 			// is.Digit.Error("release year must be a numeric value."),
 			// validation.Length(4, 4).Error("release year must be a 4-digit number."),
