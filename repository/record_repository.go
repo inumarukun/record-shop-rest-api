@@ -47,15 +47,17 @@ func (rr *recordRepository) GetRecordList() ([]model.Record, error) {
 
 func (rr *recordRepository) GetDetail(title string) (model.DetailResponse, error) {
 	var records []struct {
-		RecordTitle   string
-		AlbumImageUrl string
-		TrackNumber   uint
-		TrackTitle    string
+		RecordTitle    string
+		AlbumImageUrl  string
+		YoutubeTitle   string
+		YoutubeVideoId string
+		TrackNumber    uint
+		TrackTitle     string
 	}
 	result := rr.db.
 		Table("records").
 		Select(
-			"records.title AS record_title, details.album_image_url, tracks.track_number, tracks.track_title").
+			"records.title AS record_title, details.album_image_url, details.youtube_title, details.youtube_video_id, tracks.track_number, tracks.track_title").
 		Joins("JOIN details ON details.record_id = records.id").
 		Joins("JOIN tracks ON tracks.detail_id = details.id").
 		Where("records.title = ?", title).
@@ -73,8 +75,10 @@ func (rr *recordRepository) GetDetail(title string) (model.DetailResponse, error
 	}
 
 	response := model.DetailResponse{
-		RecordTitle:   records[0].RecordTitle,
-		AlbumImageUrl: records[0].AlbumImageUrl,
+		RecordTitle:    records[0].RecordTitle,
+		AlbumImageUrl:  records[0].AlbumImageUrl,
+		YoutubeTitle:   records[0].YoutubeTitle,
+		YoutubeVideoId: records[0].YoutubeVideoId,
 	}
 	for _, r := range records {
 		track := model.TrackInfo{

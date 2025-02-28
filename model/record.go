@@ -2,6 +2,7 @@ package model
 
 import "time"
 
+// Gormはデフォルトでモデル名を複数形でテーブル名として使う
 type Record struct {
 	ID          uint      `json:"id" gorm:"primaryKey;autoIncrement"`
 	Title       string    `json:"title" gorm:"not null; default: ''"`
@@ -10,7 +11,7 @@ type Record struct {
 	Style       string    `json:"style" gorm:"not null; default: ''"`
 	ReleaseYear int       `json:"release_year" gorm:"not null"`
 	CreatedAt   time.Time `json:"created_at" gorm:"not null"`
-	// time.Time 型の場合、nullは扱えない
+	// time.Time 型の場合、default:nullは扱えない
 	// null を許容したい場合は、*time.Time 型を使う
 	UpdatedAt *time.Time `json:"updated_at" gorm:"default:null"`
 }
@@ -36,17 +37,20 @@ type RecordResponse struct {
 //   OnUpdate:CASCADE、RecordのIDが変更された場合、それに応じてDetailも更新
 //   OnDelete:SET NULL、Recordが削除された場合、紐づくDetailのRecordIdフィールドをNULLに設定
 type Detail struct {
-	ID            uint   `json:"id" gorm:"primaryKey;autoIncrement"`
-	RecordId      uint   `json:"recordId" gorm:"not null"`
-	AlbumImageUrl string `json:"albumImageUrl" gorm:"default: ''"`
-	Record        Record `json:"-" gorm:"foreignKey:RecordId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	ID             uint   `json:"id" gorm:"primaryKey;autoIncrement"`
+	RecordId       uint   `json:"recordId" gorm:"not null"`
+	AlbumImageUrl  string `json:"albumImageUrl" gorm:"default: ''"`
+	YoutubeTitle   string `json:"youtubeTitle" gorm:"default: ''"`
+	YoutubeVideoId string `json:"youtubeVideoId" gorm:"default: ''"`
+	Record         Record `json:"-" gorm:"foreignKey:RecordId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
+// TrackはTrackInfoをリストで持たないと→そんなことない ↓は出力形式なだけ
 type Track struct {
 	ID          uint   `json:"id" gorm:"primaryKey;autoIncrement"`
 	DetailId    uint   `json:"detailId" gorm:"not null"`
 	TrackNumber uint   `json:"trackNumber"  gorm:"not null"`
-	TrackTitle  string `json:"itrackTitled" gorm:"not null; default: ''"`
+	TrackTitle  string `json:"trackTitle" gorm:"not null; default: ''"`
 	Detail      Record `json:"-" gorm:"foreignKey:DetailId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
@@ -55,7 +59,9 @@ type TrackInfo struct {
 	TrackTitle  string `json:"trackTitle"`
 }
 type DetailResponse struct {
-	RecordTitle   string      `json:"recordTitle"`
-	AlbumImageUrl string      `json:"albumImageUrl"`
-	Tracks        []TrackInfo `json:"tracks"`
+	RecordTitle    string      `json:"recordTitle"`
+	AlbumImageUrl  string      `json:"albumImageUrl"`
+	YoutubeTitle   string      `json:"youtubeTitle"`
+	YoutubeVideoId string      `json:"youtubeVideoId"`
+	Tracks         []TrackInfo `json:"tracks"`
 }

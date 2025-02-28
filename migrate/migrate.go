@@ -18,6 +18,7 @@ func main() {
 		log.Fatalf("failed to migrate database: %v", err)
 	}
 
+	// create_atでdefaultで現在時刻を入れる
 	err = dbConn.Exec(`
 		ALTER TABLE records
 		ALTER COLUMN created_at SET DEFAULT CURRENT_TIMESTAMP;
